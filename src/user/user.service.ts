@@ -9,21 +9,14 @@ export class UserService {
   constructor(@InjectDataSource() private connecion: Connection) {}
   async signup(id: String, nickname: String, pw: String, role: string) {
     const infoinsert = await this.connecion.query(
-      'insert into member(id,nickname,pw) value(?,?,?)',
-      [id, nickname, pw],
+      'insert into member(id,nickname,pw,role) value(?,?,?,?)',
+      [id, nickname, pw, role],
     );
-    const roleinsert = await this.connecion.query(
-      'insert into role(id,role) value(?,?)',
-      [id, role],
-    );
-    return infoinsert && roleinsert;
+
+    return infoinsert;
   }
 
   async login(id: String) {
     return await this.connecion.query('select * from member where id =?', [id]);
-  }
-
-  async getUserRole(id: String) {
-    return await this.connecion.query('select * from role where id =?', [id]);
   }
 }

@@ -16,10 +16,10 @@ import { JwtService } from '@nestjs/jwt';
 import { Response, Request } from 'express';
 import { Console } from 'console';
 import { Payload } from './security/payload.interface';
-import { AuthDto } from './dto/auth.dto';
-import { AuthCuard } from './security/auth.guard';
 import { Roles } from './roles.decorator';
 import { Role } from './role.enum';
+import { RoleGuard } from './security/role.guard';
+import { AuthGuard } from './security/auth.guard';
 
 @Controller('user')
 export class UserController {
@@ -31,16 +31,17 @@ export class UserController {
 
   // 회원가입 - 비밀번호 bcrypt.hash로 암호화
   @Post('/signup')
-  async signup(@Body() userDto: UserDto, @Body() authDto: AuthDto) {
+  async signup(@Body() userDto: UserDto) {
     // console.log(userDto.pw);
+    console.log(userDto);
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(userDto.pw, salt);
-    // console.log(hashedPassword);
+    console.log(hashedPassword);
     return await this.userService.signup(
       userDto.id,
       userDto.nickname,
       hashedPassword,
-      authDto.role,
+      userDto.role,
     );
   }
 
@@ -70,7 +71,7 @@ export class UserController {
 
   @Get('/authentication')
   // AuthGuard 가 자동으로 PassportStrategy를 상속받은 JwtStrategy를 찾아 로직 수행
-  @UseGuards(AuthCuard)
+  @UseGuards(AuthGuard)
   isAuthenticated(@Req() req: Request) {
     const user = req.user;
     console.log(user);
@@ -78,7 +79,7 @@ export class UserController {
   }
 
   @Post('/adminPage')
-  @UseGuards(AuthCuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.Admin)
   async page() {
     return 'adminPage';

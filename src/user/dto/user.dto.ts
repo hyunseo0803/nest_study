@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Column, OneToMany, JoinColumn } from 'typeorm';
 
 export class UserDto {
   @ApiProperty({
@@ -22,4 +23,9 @@ export class UserDto {
     description: '회원 역할',
   })
   role: string;
+
+  // @OneToMany(() => AuthDto, (userAuthority) => userAuthority.user, {
+  //   eager: true,
+  // })
+  // authorities: any[];
 }
